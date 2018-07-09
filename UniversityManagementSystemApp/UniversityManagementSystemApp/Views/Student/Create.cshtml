@@ -1,0 +1,115 @@
+﻿@using UniversityManagementSystemApp.Models
+@model UniversityManagementSystemApp.Models.Student
+
+
+<link href="~/Content/CustomStyle.css" rel="stylesheet" />
+<div class="container">
+    <div class="row">
+        <div class="customStyle">
+            @using (Html.BeginForm())
+            {
+                @Html.AntiForgeryToken()
+                if (ViewBag.Message != null)
+                {
+                    <div class="row">
+                        <div class="col-sm-6 col-sm-offset-4">
+                            <div class="alert alert-@ViewBag.MessageType">
+                                @Html.Raw(ViewBag.Message);
+                            </div>
+                        </div>
+                    </div>
+                }
+
+
+                <div class="form-horizontal">
+                    <h4>Create Student</h4>
+                    <hr />
+                    @Html.ValidationSummary(true)
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.Name, new { @class = "col-md-2" })
+                        <div class="col-md-10">
+                            @Html.TextBoxFor(model => model.Name, new { @class = "form-control col-lg-6" })
+                            @*@Html.EditorFor(model => model.Name)*@
+                            @Html.ValidationMessageFor(model => model.Name)
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.Email, new { @class = "col-md-2" })
+                        <div class="col-md-10">
+                            @Html.TextBoxFor(model => model.Email, new { @class = "form-control col-lg-6" })
+                            @*@Html.EditorFor(model => model.Email)*@
+                            @Html.ValidationMessageFor(model => model.Email)
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.ContactNo, new { @class = "col-md-6" })
+                        <div class="col-md-10">
+                            @Html.TextBoxFor(model => model.ContactNo, new { @class = "form-control col-lg-6" })
+                            @*@Html.EditorFor(model => model.ContactNo)*@
+                            @Html.ValidationMessageFor(model => model.ContactNo)
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.Date, new { @class = "col-md-2" })
+                        <div class="col-md-10">
+                            <input type="date" name="Date" class="form-control col-lg-6" />
+                            @Html.ValidationMessageFor(model => model.Date)
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.Address, new { @class = "col-md-2" })
+                        <div class="col-md-10">
+                            @Html.TextAreaFor(model => model.Address, new { @class = "form-control col-lg-6" })
+                            @*@Html.EditorFor(model => model.Address)*@
+                            @Html.ValidationMessageFor(model => model.Address)
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.DepartmentId, "Department", new { @class = "col-md-2" })
+                        <div class="col-md-10">
+                            <select id="DepartmentId" name="DepartmentId">
+                                @foreach (Department department in ViewBag.Departments)
+                                {
+                                    <option value="@department.Id">@department.DeptCode</option>
+                                }
+                            </select>
+                            @*@Html.DropDownList("DepartmentId", "Select Department")*@
+                            @Html.ValidationMessageFor(model => model.DepartmentId)
+                        </div>
+                    </div>
+
+                    @*<div class="form-group">
+                            @Html.LabelFor(model => model.StudentRegNo, new { @class = "control-label col-md-2" })
+                            <div class="col-md-10">
+                                @Html.EditorFor(model => model.StudentRegNo)
+                                @Html.ValidationMessageFor(model => model.StudentRegNo)
+                            </div>
+                        </div>*@
+
+                    <div class="form-group">
+                        <div class="col-md-offset-2 col-md-10">
+                            <input type="submit" id="submit" value="Create" class="btn btn-success" style="margin-left: 160px;" />
+                        </div>
+                    </div>
+                </div>
+            }
+            @section Scripts {
+                @Scripts.Render("~/bundles/jqueryval")
+                <script>
+                    $(document).ready(function () {
+                        $('#DepartmentId').addClass('form-control col-lg-6');
+                        $('#submit').click(function () {
+
+                        });
+                    });
+                </script>
+            }
+        </div>
+    </div>
+</div>

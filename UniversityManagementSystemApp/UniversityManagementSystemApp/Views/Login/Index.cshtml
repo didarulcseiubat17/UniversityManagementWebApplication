@@ -1,0 +1,26 @@
+﻿@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Log In Page...</h2>
+<button id="testButton"> Click Here</button>
+
+<div id="signUpForm" style="width: 100%; background: rgba(0, 0, 0, 0.4); height: 700px; position: absolute; left: 0; top: 0;">
+    <button id="closeButton" class="font-weight-bold" style="float: right">&times;</button>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    <script>
+        $(document).ready(function() {
+            $('#signUpForm').hide();
+            $('#testButton').click(function() {
+                $('#signUpForm').show("slow");
+            });
+            $('#closeButton').click(function() {
+                $('#signUpForm').hide("slow");
+            });
+        });
+    </script>
+}
+

@@ -1,0 +1,53 @@
+﻿<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="customStyle">
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+ $.ajax({
+                                            url: "@Url.Action("GetResultInfoByRegistrationNumber", "Results")",
+                                            type: "POST",
+                                            data: { registrationNum: $('#registrationNumber').val() },
+                                            dataType: "json",
+                                            success: function (data) {
+
+                                                var x = "";
+                                                var y = "";
+                                                $.each(data, function (i, v) {
+                                                    var assignedTo = v.ResultStatus;
+                                                    if (assignedTo == null || assignedTo == "") {
+                                                        assignedTo = "Not Yet Published Result";
+                                                        $('#updateNew1').html(assignedTo);
+                                                    }
+                                                    else {
+                                                        $('#updateNew1').html(v.assignedTo +" ");
+                                                    }
+
+                                                    x += v.Course.CourseCode + " ";
+                                                    $('#updateNew').html(x);
+
+                                                    
+                                                });
+
+
+                                                //if (data != false) {
+                                                //    $("#courseId").empty();
+                                                //    $("#courseId").append("<option value=0>Select Course</option>");
+                                                //    $.each(data, function (index, value) {
+                                                //        $("#courseId").append('<option value=' + value.CourseId + '>' + value.Course.CourseCode + '</option><hr />');;
+                                                //    });
+                                                //} else if (data == false) {
+                                                //    $('#resultText').show("fast");
+                                                //    $("#courseId").empty();
+                                                //    $("#courseId").append("<option value=0>Select Course</option>");
+                                                //    $('#resultText').html((" Result Of ")+ "<b>"+ $("#nameId").val()+"'s</b>" + " Didn't Publised Yet.").addClass('alert alert-danger');
+                                                //}
+                                            },
+                                            error: function () {
+                                                alert("Oops! There Is an Error.");
+                                            }
+                                        });

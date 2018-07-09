@@ -1,0 +1,222 @@
+﻿@using UniversityManagementSystemApp.Models
+<link href="~/Content/CustomStyle.css" rel="stylesheet" />
+@model Result
+
+@{
+    ViewBag.Title = "Create";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    #myPdfWrapper {
+        background: rgba(0,0,0,0.3);
+        height: 700px;
+        z-index: 1;
+        width: 100%;
+        position: absolute;
+        left: 0;
+    }
+    #pdfHolder {
+        width: 500px;
+        height: 97%;
+        position: relative;
+        background: white;
+        left: 27.5%;
+        top: 2%;
+        border: dotted 1px #00008b;
+        border-radius: 10px;
+        margin-bottom: 10px
+    }
+</style>
+<div id="myPdfWrapper" style="">
+    <div id="pdfHolder" style="">
+        <h2 style="margin-left: 30px;"><i>Premier Uiversity, Chittagong</i>
+        </h2>
+        <hr/>
+        <div id="myRandomPDF"></div>
+    </div>
+</div>
+
+
+<div class="container">
+
+    <div class="row">
+
+        <div class="col-md-12">
+            <h2>View Student Result</h2>
+            <hr />
+            <div class=" customStyle">
+                @using (Html.BeginForm())
+                {
+                    @Html.AntiForgeryToken()
+                    <div style="margin-left: 100px;">
+                        <div class="form-horizontal">
+
+                            @Html.ValidationSummary(true)
+
+                            <div class="form-group">
+                                <div class="col-md-10">
+                                    <div class="alert alert-success col-lg-6" id="xyz"></div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="col-md-10">
+                                    <div id="resultText" class="alert alert-danger col-lg-10"></div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.RegistrationNumber, "Registration Number", new { @class = "col-lg-8" })
+                                <div class="col-md-10">
+                                    <input type="text" name="RegistrationNumber" id="registrationNumber" class="form-control col-lg-8" placeholder="Type Student Registration Number" />
+                                    @*@Html.EditorFor(model => model.RegistrationNumber)*@
+                                    <span id="RegistrationNumberError"></span>
+                                    @Html.ValidationMessageFor(model => model.RegistrationNumber)
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.Name, new { @class = "col-md-2" })
+                                <div class="col-md-10">
+                                    <input type="text" name="Name" id="nameId" class="form-control col-lg-8" placeholder="Name" />
+                                    <span id="NameError"></span>
+                                    @*@Html.EditorFor(model => model.Name)*@
+                                    @Html.ValidationMessageFor(model => model.Name)
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.Email, new { @class = " col-md-2" })
+                                <div class="col-md-10">
+                                    <input type="text" name="Email" id="emailId" class="form-control col-lg-8" placeholder="Email" />
+                                    <span id="EmailError"></span>
+                                    @*@Html.EditorFor(model => model.Email)*@
+                                    @Html.ValidationMessageFor(model => model.Email)
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.Department, new { @class = "col-md-2" })
+                                <div class="col-md-10">
+                                    <input type="text" name="Department" id="departmentId" class="form-control  col-lg-8" placeholder="Department" />
+
+                                    <span id="DepartmentError"></span>
+                                    @Html.ValidationMessageFor(model => model.Department)
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+                <button id="pdfButton" class="btn btn-sm btn-dark" style="margin-left: 293px;">Make PDF</button>
+                <br />
+                <div id="updatePanel" style="margin-top: 12px"></div>
+                <div id="notEnrolledNotResultYet"></div>
+
+                @section Scripts {
+                    @Scripts.Render("~/bundles/jqueryval")
+
+                    <script>
+                        $(document).ready(function () {
+                            //when form loading...
+                            $('#resultText').hide();
+                            $('#xyz').hide();
+                            $('span').css('color', 'red');
+                            $("#courseId").append("<option value=0>Select Course</option>");
+                            $('#GradeId').addClass('form-control');
+                            $('#myPdfWrapper').css('display', 'none');
+
+
+
+
+                            $('#pdfButton').click(function () {
+
+                                $('#myPdfWrapper').fadeIn(2000);
+                                
+                            });
+                            $('#myPdfWrapper').click(function () {
+                                $(this).fadeOut(2000);
+                            });
+
+                            function dynamicTable(data) {
+                                var tab = $("<table></table>");
+                                var thead = $("<thead></thead>");
+                                thead.append('<th>Course Code</th>');
+                                thead.append('<th>Name</th>');
+                                thead.append('<th>Grade</th>');
+                                tab.append(thead);
+
+                                $.each(data, function (index, value) {
+                                    var trow = $('<tr></tr>');
+                                    trow.append('<td>' + value.Course.CourseCode + '</td>');
+                                    trow.append('<td>' + value.Course.CourseName + '</td>');
+
+                                    var resultStatus = value.ResultStatus;
+                                    if (resultStatus == null || resultStatus == "") {
+                                        resultStatus = "Result Not Yet Published.";
+                                        trow.append('<td>' + resultStatus + '</td>');
+                                    } else {
+                                        trow.append('<td>' + value.Grade.GradeName + '</td>');
+                                    }
+                                    $('tr:odd').css('backgroundColor', '#ddd');
+                                    tab.append(trow);
+                                });
+                                tab.addClass("table table-bordered table-striped table-light table-hover");
+                                //$('#myRandomPDF').html(tab);
+                                $('#updatePanel').html(tab);
+                                
+                            }
+                            $('#registrationNumber').change(function () {
+                                $('#resultText').hide(1000);
+                                $('span').html("");
+                                $.ajax({
+                                    url: "@Url.Action("GetStudentInfoByRegistrationNumber", "Results")",
+                                    type: "GET",
+                                    data: { registrationNum: $('#registrationNumber').val() },
+                                    dataType: "json",
+                                    success: function (data) {
+
+                                        if (data != false) {
+                                            $("#nameId").val(data.Name);
+                                            $("#emailId").val(data.Email);
+                                            $("#departmentId").val(data.Department.DeptName);
+                                            $.ajax({
+                                                url: "@Url.Action("GetResultInfoByRegNo", "Results")",
+                                                type: "GET",
+                                                data: { registrationNumber: $('#registrationNumber').val() },
+                                                dataType: "json",
+                                                success: function (data) {
+                                                    if (data != false) {
+                                                        $('#notEnrolledNotResultYet').empty();
+                                                        dynamicTable(data);
+                                                    } else if (data == false) {
+                                                        $('#updatePanel').empty();
+                                                        $('#notEnrolledNotResultYet').html("This Student Doesn't Enrolled Any Of The Courses").addClass('alert alert-danger');
+                                                    }
+
+
+                                                },
+                                                error: function () {
+                                                    alert("There Is A Problem!");
+                                                }
+                                            });
+                                        } else if (data == false) {
+                                            $('#updatePanel').html("Oops! There Is No Registration Number Like " + $('#registrationNumber').val()).addClass('alert alert-danger');
+                                        }
+
+
+                                    },
+                                    error: function () {
+                                        alert("Oops! There Is An Error.");
+                                    }
+                                });
+                            });
+                        });
+                    </script>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+

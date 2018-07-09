@@ -1,0 +1,162 @@
+﻿@using UniversityManagementSystemApp.Models
+@model UniversityManagementSystemApp.Models.Enrollment
+<link href="~/Content/CustomStyle.css" rel="stylesheet" />
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    <div class="customStyle">
+        <div class="form-horizontal">
+            <h4>Enrollment</h4>
+            <hr />
+            @Html.ValidationSummary(true)
+            <div class="form-group">
+                @Html.LabelFor(model => model.RegistrationNumber, "Registration Number", new { @class = "col-md-8" })
+                <div class="col-md-10">
+                    <input name="RegistrationNumber" id="studentRegNoId" class="form-control col-lg-6" placeholder="Enter Registration Number" />
+                    @Html.ValidationMessageFor(x => x.RegistrationNumber)
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.Name, new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    <input type="text" name="Name" id="nameText" class="form-control col-lg-6" />
+                    @*@Html.TextBoxFor(model => model.Name, new {@class = "form-control col-lg-6"})*@
+                    @Html.ValidationMessageFor(model => model.Name)
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.Email, new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    <input type="text" name="Email" id="emailText" class="form-control col-lg-6" />
+                    @*@Html.TextBoxFor(model => model.Email, new {@class = "form-control col-lg-6"})*@
+                    @Html.ValidationMessageFor(model => model.Email)
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.Department, new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    <input type="text" name="Department" id="departmentText" class="form-control col-lg-6" />
+                    @*@Html.TextBoxFor(model => model.Department, new {@class = "form-control col-lg-6"})*@
+                    @Html.ValidationMessageFor(model => model.Department)
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.CourseId, "Course", new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    <select id="courseId" name="CourseId" class="form-control col-lg-6">
+                        <option value="0">Select Course</option>
+                        @foreach (Course course in ViewBag.Courses)
+                        {
+                            <option value="@course.Id">@course.CourseCode</option>
+                        }
+                    </select>
+                    @Html.ValidationMessageFor(model => model.CourseId)
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.Date, new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    <input type="date" name="Date" id="dateId" class="form-control col-lg-6" />
+                    @Html.ValidationMessageFor(model => model.Date)
+                </div>
+            </div>
+
+            <div id="updateStudentId" style="display: none"></div>
+
+
+            <div class="form-group">
+                <div class="col-md-10">
+                    <div class="alert alert-success col-lg-6" id="xyz"></div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-10">
+                    <input type="submit" value="Create" id="submitButton" class="btn btn-default" />
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+
+    <script>
+        $(document).ready(function () {
+            $('#xyz').hide();
+            $('#studentRegNoId').change(function () {
+                $.ajax({
+                    url: "@Url.Action("GetStudentInfoByRegistrationNumber", "Enrollment")",
+                    type: "POST",
+                    data: { prefix: $('#studentRegNoId').val() },
+                    dataType: "json",
+                    success: function (data) {
+                        $('#nameText').val(data.Name);
+                        $('#emailText').val(data.Email);
+                        $('#updateStudentId').html(data.Id);
+                        $.ajax({
+                            url: "@Url.Action("GetDepartmentById", "Enrollment")",
+                            type: "POST",
+                            data: { departmentId: data.DepartmentId },
+                            dataType: "json",
+                            success: function (data) {
+                                $('#departmentText').val(data.DeptName);
+                            },
+                            error: function () {
+                                alert("There Is An Error While Fatching Data");
+                            }
+                        });
+                    },
+                    error: function () {
+                        alert("There Is An Error While Fatching Data");
+                    }
+                });
+            });
+
+            $('#submitButton').click(function () {
+                var studentId = parseInt($('#updateStudentId').text());
+                var jsonData = {
+                    RegistrationNumber: $('#studentRegNoId').val(),
+                    Name: $('#nameText').val(),
+                    Email: $('#emailText').val(),
+                    Department: $('#departmentText').val(),
+                    CourseId: $('#courseId').val(),
+                    Date: $('#dateId').val(),
+                    StudentId: studentId
+                }
+                $.ajax({
+                    url: "@Url.Action("SaveEnrollment", "Enrollment")",
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify(jsonData),
+                    dataType: "json",
+                    success: function (data) {
+                        if (data === true) {
+                            $("#xyz").hide();
+                            $("#xyz").show("fast", function () {
+                                $("#xyz").text("Successfully Enrolled");
+
+                            });
+                        } else {
+                            $("#xyz").hide();
+                            $("#xyz").show("fast", function () {
+                                $("#xyz").text("This Course Is Already Enrolled");
+
+                            });
+                        }
+                    },
+                    //error: function () {
+                    //    alert("There Is An Error");
+                    //}
+                });
+                return false;
+            });
+        });
+    </script>
+}

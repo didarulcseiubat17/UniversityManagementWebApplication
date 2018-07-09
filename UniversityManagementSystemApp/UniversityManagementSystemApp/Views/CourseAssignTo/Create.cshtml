@@ -1,0 +1,350 @@
+﻿@using UniversityManagementSystemApp.Models
+@model CourseAssign
+
+@{
+    ViewBag.Title = "Create";
+}
+<style>
+    /*.form-horizontal {
+        margin-left: 19%;
+    }
+
+    .dddd {
+        width: 1151px;
+        margin-left: 166px;
+    }
+
+    .col-md-offset-4 {
+        margin-left: 39.333333%;
+    }
+
+    .text-center {
+        text-align: center;
+        margin-left: 161px;
+        margin-bottom: 5px;
+    }
+    #AssignSuccessLabel {
+        margin-left: -600px
+    }
+    #AssignErrorLabel {
+        margin-left: -600px;
+    }
+    .dddd {
+    }*/
+
+    .customStyle {
+        width: 600px;
+        height: auto;
+        margin: 0 auto;
+        margin-top: 20px;
+    }
+
+    .customSubmit {
+        float: right;
+        left: 0;
+    }
+</style>
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <select id="colorId" class="col-lg-3 form-control" style="float: right; margin-top: 20px;">
+                <option value="-1">Select Themes</option>
+                <option value="0">Dark</option>
+                <option value="1">Light</option>
+            </select>
+            <div class=" customStyle">
+
+                @using (Html.BeginForm())
+                {
+                    @Html.AntiForgeryToken()
+
+                    <div class="form-horizontal">
+                        <h4>Course Assign To</h4>
+                        <hr/>
+                        @Html.ValidationSummary(true)
+
+                        <div class="form-group">
+                            <label class="col-md-2">Department</label>
+                            <div class="col-md-10">
+                                <select name="DepartmentId" id="departmentId" class="form-control col-lg-6">
+                                    <option value="0">Select Department</option>
+                                    @foreach (var department in ViewBag.Departments)
+                                    {
+                                        <option value="@department.Id">@department.DeptName</option>
+                                    }
+                                </select>
+                                @*@Html.ValidationMessageFor(model => model.DepartmentId)*@
+                                <div id="DeptErrorLabel" class="text-danger"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-md-2">Teacher</label>
+                            <div class="col-md-10">
+                                <select name="TeacherId" id="teacherId" class="form-control col-lg-6"></select>
+                                @Html.ValidationMessageFor(model => model.TeacherId)
+                                <div class=" text-danger" id="teacherCustomError"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-lg-6">Credit To be Taken</label>
+                            <div class="col-md-10">
+                                <input type="text" name="CreditTaken" id="creditTaken" readonly="readonly" class="form-control col-lg-6"/>
+                                <div class="creditTakenCustomError text-danger"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-lg-6">Remaining Credit</label>
+                            <div class="col-md-10">
+                                <input type="text" name="CreditLeft" id="remainingCredit" readonly="readonly" class="form-control col-lg-6"/>
+                                <div class="creditTakenCustomError text-danger"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.CourseID, "Course Code", new {@class = "col-lg-6"})
+                            <div class="col-md-10">
+                                <select name="CourseID" id="courseTextBox" class="form-control col-lg-6"></select>
+                                @Html.ValidationMessageFor(x => x.CourseID)
+                                <div class="text-danger" id="customCourseIdError"></div>
+                            </div>
+                        </div>
+
+                        <div id="updateCourseCheckBoxes" class="col-lg-6"></div>
+
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.Name, new {@class = "col-md-2"})
+                            <div class="col-md-10">
+                                <input name="Name" class="form-control col-lg-6" readonly="readonly" id="nameId"/>
+                                @Html.ValidationMessageFor(model => model.Name)
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.Credit, new {@class = "col-md-2"})
+                            <div class="col-md-10">
+                                <input name="Credit" class="form-control col-lg-6" readonly="readonly" id="creditId"/>
+                                @Html.ValidationMessageFor(model => model.Credit)
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-md-offset-2 col-md-10">
+                                <input type="submit" name="submit" id="submit" value="Assign" class="btn btn-success" style="margin-left: 170px;"/>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="form-group">
+                        <div class="col-md-10 text-center">
+                            <p>
+                                <label id="AssignSuccessLabel" style="color: green;" class="alert alert-success"></label>
+                                <label id="AssignErrorLabel" style="color: red;" class="alert alert-danger"></label>
+                            </p>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+<div id="xyz"></div>
+
+
+
+
+
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+
+    <script>
+        $(document).ready(function () {
+
+            var teacherId = $('#teacherId');
+            teacherId.append('<option value=0>Select Teacher</option>');
+            $('#courseTextBox').append("<option>Select Course</option>");
+            teacherId.prop('disabled', true);
+            $('#courseTextBox').prop('disabled', true);
+
+            $('#departmentId').change(function () {
+                teacherId.empty();
+                $("#courseTextBox").empty();
+                $("#DeptErrorLabel").html("");
+                var jsonData = $(this).val();
+                $.ajax({
+                    url: "@Url.Action("GetTeacherByDepartmentId", "CourseAssignTo")",
+                    method: "POST",
+                    data: { departmentId: jsonData },
+                    dataType: "json",
+                    success: function (data) {
+                        teacherId.append('<option value=0>Select Teacher</option>');
+                        $.each(data, function (index, value) {
+                            teacherId.prop('disabled', false);
+                            //teacherId.append($("</option>", { value: val.Id, Text: val.TeacherName }));
+                            $("#teacherId").append('<option value=' + value.Id + '>' + value.TeacherName + '</option>');
+                        });
+                    },
+                    error: function () {
+                        alert("There Is an Error");
+                    }
+                });
+//for comboBox
+                $.ajax({
+                    url: "@Url.Action("GetCourseCodeByDepartmentId", "CourseAssignTo")",
+                    method: "POST",
+                    data: { departmentId: jsonData },
+                    dataType: "json",
+                    success: function (data) {
+                        $('#courseTextBox').append("<option>Select Course</option>");
+                        $('#courseTextBox').prop('disabled', false);
+                        $.each(data, function (index, value) {
+                            $("#courseTextBox").append('<option value=' + value.Id + '>' + value.CourseCode + '</option>');
+                        });
+                    },
+                    error: function () {
+                        alert("There Is an Error");
+                    }
+                });
+                
+            });
+
+            $('#teacherId').change(function () {
+                if ($(this).val() == 0) {
+                    $('#teacherCustomError').html("Please Select A Teacher Name.");
+                    return false;
+                } else {
+                    $.ajax({
+                        url: "@Url.Action("GetCreditInformationByTeacherId", "CourseAssignTo")",
+                        method: "POST",
+                        data: { teacherId: $(this).val() },
+                        dataType: "json",
+                        success: function (data) {
+                            $('#creditTaken').val(data.CreditTaken);
+                            $('#remainingCredit').val(data.CreditLeft);
+                        },
+                        error: function () {
+                            alert("There Is An Error.");
+                        }
+                    });
+                }
+                $('#teacherCustomError').html("");
+            });
+
+            $('#courseTextBox').change(function () {
+                var courseId = $(this).val();
+                $('#customCourseIdError').html("");
+                if ($('#courseTextBox option:selected').val() === "Select Course") {
+                    $("#nameId").val("");
+                    $("#creditId").val("");
+                    $('#customCourseIdError').html("Please Select A Course Name");
+                    return false;
+                } else {
+                    $.ajax({
+                        url: "@Url.Action("GetCourseInformationById", "CourseAssignTo")",
+                        method: "POST",
+                        data: { courseId: courseId },
+                        dataType: "json",
+                        success: function (data) {
+                            $('#nameId').val(data.CourseName);
+                            $('#creditId').val(data.CourseCredit);
+                        },
+                        error: function () {
+                            alert("There Is An Error.");
+                        }
+                    });
+                }
+            });
+
+        });
+    </script>
+    <script>
+        $(document).ready(function () {
+            var departmentId = $('#departmentId').val();
+            var teacherId = $('#teacherId').val();
+            $("#AssignSuccessLabel").hide();
+            $("#AssignErrorLabel").hide();
+            var errorValue = 0;
+            $('#submit').click(function () {
+                if ($('#departmentId').val() == 0) {
+                    $("#DeptErrorLabel").html("Please Select Department.");
+                    errorValue = 1;
+                }
+                if ($('#courseTextBox').val() == 0 || $('#courseTextBox option:selected').val() == "Select Course") {
+                    $('#customCourseIdError').html("Please Select A Course Name.");
+                    errorValue = 1;
+                }
+                if ($('#teacherId').val() == 0) {
+                    $('#teacherCustomError').html("Please Select Teacher.");
+                    errorValue = 1;
+                }
+                if (errorValue == 1) {
+                    return false;
+                } else {
+                    var availableCredit = $("#remainingCredit").val() - $("#creditId").val();
+                    var status = false;
+                    if (availableCredit <= 0) {
+                        status = confirm("This will cross total assigned credit for this teacher. Do You Proced...");
+                    }
+                    if (status == true || availableCredit >= 0) {
+                        var departent = $("#departmentId").val();
+                        var teacher = $("#teacherId").val();
+                        var creditToBeTakenIs = $("#creditTaken").val();
+                        var remainigCredit = availableCredit;
+                        var course = $("#courseTextBox").val();
+                        var name = $("#nameId").val();
+                        var credit = $("#creditId").val();
+
+
+
+                        var jsonData1 = {
+                            DepartmentId: departent,
+                            TeacherId: teacher,
+                            CreditTaken: creditToBeTakenIs,
+                            CreditLeft: remainigCredit,
+                            CourseID: course,
+                            Name: name,
+                            Credit: credit
+                        }
+                        $.ajax({
+                            method: "POST",
+                            url: "@Url.Action("SaveCourseAssign", "CourseAssignTo")",
+                            contentType: "application/json; charset=utf-8",
+                            data: JSON.stringify(jsonData1),
+                            dataType: "json",
+                            success: function (data) {
+                                if (data === true) {
+                                    $("#AssignErrorLabel").hide();
+                                    $("#AssignSuccessLabel").show("fast", function () {
+                                        $("#AssignSuccessLabel").text("Successfully Assigned");
+                                        //resetData();
+                                    });
+                                } else {
+                                    $("#AssignSuccessLabel").hide();
+                                    $("#AssignErrorLabel").show("fast", function () {
+                                        $("#AssignErrorLabel").text("This course is already Assigned");
+                                        //resetData();
+                                    });
+
+                                }
+                            }
+
+                        });
+
+                    }
+                    return false;
+                }
+
+            });
+
+            return false;
+
+        });
+    </script>
+    <script src="~/Scripts/CustomJavaScript/Themes.js"></script>
+
+}

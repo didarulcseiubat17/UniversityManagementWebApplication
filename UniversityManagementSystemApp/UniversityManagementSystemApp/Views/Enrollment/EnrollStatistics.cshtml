@@ -1,0 +1,77 @@
+﻿@using UniversityManagementSystemApp.Models
+@model IEnumerable<Enrollment>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-10">
+            <div class="form-vertical">
+                <div class="form-group">
+                    <br/>
+                    <div class="col-md-10 col-sm-offset-4" style="margin-left: 400px">
+                        <select id="registrationNumber" class="form-control">
+                            <option value="0">Select Registration Number</option>
+                            @foreach (Student student in ViewBag.GetRegistrationNumners)
+                            {
+                                <option value="@student.Id">@student.StudentRegNo</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="updatePanel" style="margin-left: 290px"></div>
+    </div>
+</div>
+
+
+
+
+
+@section scripts
+{
+    @Scripts.Render("~/bundles/jqueryval");
+    <script>
+        $(document).ready(function () {
+            var registrationId = $('#registrationNumber').val();
+
+            function dynamicTable(data) {
+                var tab = $("<table></table>");
+                var thead = $("<thead></thead>");
+                thead.append('<th>Name/Title</th>');
+                thead.append('<th>Email</th>');
+                thead.append('<th>Department</th>');
+                thead.append('<th>Course</th>');
+                thead.addClass("table-active");
+                tab.append(thead);
+
+                $.each(data, function (index, value) {
+                    var trow = $('<tr></tr>');
+                    trow.append('<td>' + value.Name + '</td>');
+                    trow.append('<td>' + value.Email + '</td>');
+                    trow.append('<td>' + value.Department + '</td>');
+                    trow.append('<td>' + value.Course.CourseCode + '</td>');
+
+
+                    tab.append(trow);
+                });
+                tab.addClass("table table-bordered table-striped table-danger table-hover");
+                $('#updatePanel').html(tab);
+            }
+            $('#registrationNumber').change(function () {
+                var regNo = $('#registrationNumber option:selected').text();
+                $.ajax({
+                    url: "@Url.Action("GetCourseStattistics", "Enrollment")",
+                    type: "GET",
+                    data: { registrationNumber: regNo },
+                    dataType: "json",
+                    success: function (data) {
+                        dynamicTable(data);
+                    },
+                    error: function () {
+                        alert("Oops! There Is An Error");
+                    }
+                });
+            });
+        });
+    </script>
+}

@@ -1,0 +1,101 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - My Web Application</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        body {
+            padding-top: 0;
+        }
+
+        .actionLinkStylePremier {
+            display: inline-block;
+            padding: 10px 10px;
+            text-align: center;
+            color: white;
+            font-weight: bold;
+        }
+
+            .actionLinkStylePremier:hover {
+                text-decoration: none;
+                background: #ddd;
+                color: black;
+                -webkit-transition: .5s all ease;
+                -moz-transition: .5s all ease;
+                -ms-transition: .5s all ease;
+                -o-transition: .5s all ease;
+                transition: .5s all ease;
+            }
+
+        .actionLinkStyle {
+            display: inline-block;
+            text-align: center;
+            color: black;
+        }
+
+            .actionLinkStyle:hover {
+                text-decoration: none;
+                background: #ddd;
+                color: black;
+                -webkit-transition: .5s all ease;
+                -moz-transition: .5s all ease;
+                -ms-transition: .5s all ease;
+                -o-transition: .5s all ease;
+                transition: .5s all ease;
+            }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-md navbar-dark bg-dark">
+        <h1 style="color: white">Premier University</h1>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExample04" aria-controls="navbarsExample04" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarsExample04">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item dropdown">
+                    
+                </li>
+            </ul>
+
+
+        </div>
+
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="container body-content">
+                    @RenderBody()
+                    <hr />
+                    <footer>
+                        <p>&copy; All Right Preserved @DateTime.Now.Year Premier University, Chottogram.</p>
+                    </footer>
+                </div>
+                @Scripts.Render("~/bundles/jquery")
+                @Scripts.Render("~/bundles/bootstrap")
+                @RenderSection("scripts", required: false)
+
+                <script>
+                    $(document).ready(function() {
+                        $('#signUpForm').hide();
+                        $('#testButton').click(function() {
+                            $('#signUpForm').show("slow");
+                        });
+                        $('#closeButton').click(function() {
+                            $('#signUpForm').hide("slow");
+                        });
+                    });
+                </script>
+
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

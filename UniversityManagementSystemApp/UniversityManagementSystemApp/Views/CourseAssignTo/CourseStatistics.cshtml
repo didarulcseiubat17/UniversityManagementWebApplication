@@ -1,0 +1,78 @@
+﻿<script src="~/Scripts/jquery-3.3.1.min.js"></script>
+@{
+    ViewBag.Title = "CourseStatistics";
+}
+
+<h2>Course Statistics</h2>
+<div class="customStyle">
+    <select id="departmentId" name="departmentId" class="form-control" style="margin-left: 340px"></select>
+    <br/>
+
+    <div id="updatePanel"></div>
+
+
+    <script>
+        $(document).ready(function () {
+            var departmentId = $("#departmentId");
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("GetAllDepartments", "CourseAssignTo")",
+                contentType: "application/json; charset=utf-8",
+                data: "",
+                dataType: "json",
+                success: function (data) {
+                    departmentId.append("<option value=0>Select Department</option>");
+                    $.each(data, function (index, val) {
+                        departmentId.append('<option value=' + val.Id + '>' + val.DeptName + '</option>');
+                    });
+                }
+            });
+
+            function loadData(data) {
+                var tab = $("<table></table>");
+                var thead = $("<thead></thead>");
+                thead.append('<th>Code</th>');
+                thead.append('<th>Name/Title</th>');
+                thead.append('<th>Semester</th>');
+                thead.append('<th>Assign To</th>');
+                thead.addClass("table-active");
+                tab.append(thead);
+
+                $.each(data, function (index, value) {
+                    var trow = $('<tr></tr>');
+                    trow.append('<td>' + value.CourseCode + '</td>');
+                    trow.append('<td>' + value.CourseName + '</td>');
+                    trow.append('<td>' + value.Semester.SemesterName + '</td>');
+
+                    var assignedTo = value.CourseAssignTo;
+                    if (assignedTo == null || assignedTo == "") {
+                        assignedTo = "Not Yet Assigned.";
+                        trow.append('<td>' + assignedTo + '</td>');
+                    } else {
+                        trow.append('<td>' + value.CourseAssignTo + '</td>');
+                    }
+
+                    tab.append(trow);
+                });
+                tab.addClass("table table-bordered table-striped table-danger table-hover");
+                $('#updatePanel').html(tab);
+            }
+            departmentId.change(function () {
+                $.ajax({
+                    type: "POST",
+                    url: "@Url.Action("CourseStatisticsByDepartmentId", "CourseAssignTo")",
+                    data: { departmentId: $(this).val() },
+                    dataType: "json",
+                    success: function (data) {
+                        loadData(data);
+                    },
+                    error: function () {
+                        alert("There Is an Error !");
+                    }
+                });
+            });
+        });
+    </script>
+</div>
+
+

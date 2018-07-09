@@ -1,0 +1,21 @@
+﻿.customStyle {
+    width: 600px;
+    height: auto;
+    margin: 0 auto;
+    margin-top: 50px;
+}
+
+.customSubmit {
+    float: right;
+    left: 0;
+}
+
+.pdfWrapper {
+    width: 100%;
+    height: 700px;
+    background: rgba(0, 0, 0, 0.5);
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+}
